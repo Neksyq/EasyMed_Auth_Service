@@ -24,11 +24,12 @@ export const createNewPrescriber = async (
   const connection = await authPool.getConnection();
   try {
     await connection.beginTransaction();
+    const emailHash = encrypt(body.email);
     const passwordHash = encrypt(body.password);
     const [result] = await connection.query<ResultSetHeader>(
       `INSERT INTO prescribers (email, password_hash, role) 
        VALUES (?, ?, ?)`,
-      [body.email, passwordHash, body.role]
+      [emailHash, passwordHash, body.role]
     );
     body.prescriberId = result.insertId;
     await publishNewPrescriberRegistered(body);
